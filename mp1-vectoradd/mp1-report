@@ -1,0 +1,10 @@
+   1. What is the memory-access to floating-point computation ratio in each
+      thread? Ignore the storing of the result. Only global memory loads should 
+      be counted towards your off-chip bandwidth.
+
+      The memory-access to floating-point computation ratio in each thread is 2.     
+      Since the number of memory accesses for per thread is 2, one is for Vector A, 
+      another one is for Vector B, thus the total number of memory accesses is 
+      2*VSIZE, where VSIZE is the size of vector. For floating-point computation 
+      in each thread is 1, thus the total number of computation is 1*VSIZE. 
+      Therefore, we get the above conclusion.

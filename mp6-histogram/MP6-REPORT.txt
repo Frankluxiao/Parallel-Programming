@@ -1,0 +1,92 @@
+1) The changes you made for the optimization.
+2) Any difficulties with completing the optimization correctly.
+3) The amount of time spent on the optimization (even if it was abandoned
+   before working).
+4) If finished and working, the speedup of the code after the optimization
+   was applied.
+
+
+
+1.Original code using shared memory from slides
+
+Difficulty: Figure out the algorithm to calculate histogram
+            As well the way atomicADD() works
+Results:
+    [luxx0201@ece-brienz release]$ ./mp6-histogram
+    Timing 'ref_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.11
+        Clock Time        (for 50 iterations) = 0.11
+    Timing 'ref_2dhisto' ended
+    Timing 'opt_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.085
+        Clock Time        (for 50 iterations) = 0.08
+    Timing 'opt_2dhisto' ended
+
+    Test PASSED
+
+Time: Spent 5 hours
+
+
+2.Optimization step 1 
+
+Optimization: Use shared memory, and load data using global index instead of pointer
+Difficulty: Figure out the reason the previous code is slow
+Results:
+    [luxx0201@ece-brienz release]$ ./mp6-histogram
+    Timing 'ref_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.11
+        Clock Time        (for 50 iterations) = 0.11
+    Timing 'ref_2dhisto' ended
+    Timing 'opt_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.784
+        Clock Time        (for 50 iterations) = 0.78
+    Timing 'opt_2dhisto' ended
+
+    Test PASSED
+
+Note: This code is unstable, sometime its result is Test FAILED
+      Tried to figure it out, but still not.
+Time: Spent 1.5 hour on it, and eventually abandoned it since its bad performance
+
+
+3.Optimization step 2
+
+Optimization: Set Row index and Col index, use 2D to load data
+Difficulty: Use 2D to load data instead of using 1D in previous code
+Results:
+    [luxx0201@ece-brienz release]$ ./mp6-histogram
+    Timing 'ref_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.11
+        Clock Time        (for 50 iterations) = 0.11
+    Timing 'ref_2dhisto' ended
+    Timing 'opt_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.075
+        Clock Time        (for 50 iterations) = 0.07
+    Timing 'opt_2dhisto' ended
+
+    Test PASSED
+
+Time: Spent 4.5 hours, using the same aspect as 2D convolution to load data, it becomes faster
+Speedup Rate: 0.08/0.07 = 1.067X
+
+
+4.Optimization step 3
+
+Optimization: Set boundary for output bins, as well set a transfer mask. For the second change, I also can change code in test_harness.cpp from INPUT_SIZE_OPT to INPUT_SIZE 
+Difficulty: Consider the conditions which are provided by problem
+Results:
+    [luxx0201@ece-brienz release]$ ./mp6-histogram
+    Timing 'ref_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.109
+        Clock Time        (for 50 iterations) = 0.1
+    Timing 'ref_2dhisto' ended
+    Timing 'opt_2dhisto' started
+        GetTimeOfDay Time (for 50 iterations) = 0.009
+        Clock Time        (for 50 iterations) = 0.01
+    Timing 'opt_2dhisto' ended
+
+    Test PASSED
+
+Time: Spend 0.5 hour
+Speedup Rate: 0.07/0.01 = 7X
+

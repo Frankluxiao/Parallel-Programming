@@ -1,0 +1,15 @@
+   1. What is the measured floating-point computation rate for the CPU and GPU
+      kernels in this application? How do they each scale with the size of the
+      input?
+   Solution:
+      We get the following test result:
+      
+         
+
+
+
+
+   2. How much time is spent as an overhead cost for using the GPU for 
+      computation? Consider all code executed within your host function
+      ConvolutionOnDevice, with the exception of the kernel itself, as overhead.
+      How does the overhead scale with the size of the input?

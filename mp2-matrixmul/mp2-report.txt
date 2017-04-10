@@ -1,0 +1,34 @@
+1. How many times is each element of the input matrices loaded during the
+
+   execution of the kernel?
+
+ 
+  
+   Solution: For input matrices M and N, they are 16-by-16 matrices. Thus,
+   each element of them is loaded 16 times during the execution of the kernel.
+ 
+   To get P(m,n), matrix M is loaded 16 values from global memory, i.e M(m,1),
+   M(m,2), ..., M(m,16), for matrix N, we get the similar answer, i.e N(1,n), 
+   N(2,n), ..., M(16,n). Since m and n change from 1 to 16, for each element,
+   we get the above conclusion.
+
+
+
+2. What is the memory-access to floating-point computation ratio in each
+
+   thread? Consider a multiply and addition as separate operations, and
+      
+   ignore the storing of the result. Only global memory loads should be
+      
+   counted towards your off-chip bandwidth.
+
+   Solution:
+   The memory-access to floating-point computation ratio in each thread is 1. 
+    
+   For every thread, to get P(m,n), it should access 32 times to get M(m,1),
+   M(m,2), ..., M(m,16) and N(1,n), N(2,n), ..., M(16,n). For computational
+   aspect, it has 16 times multiplication, i.e M(m,1)*N(1,n), M(m,2)*N(2,n),
+   ..., M(m,16)*N(16,n). it also has 16 times addition, i.e 0 + M(m,1)*N(1,n)
+   + M(m,2)*N(2,n) + M(m,16)*N(16,n), thus the total number of computation in 
+   each thread is 32.
+   Therefore, we get the above conclusion.

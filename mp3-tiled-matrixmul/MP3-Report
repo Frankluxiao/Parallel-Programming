@@ -1,0 +1,25 @@
+Question 
+
+   In your kernel implementation, how many threads can be simultaneously
+   scheduled for execution on a GeForce GTX 280 GPU, which contains 30
+   streaming multiprocessors? Use nvcc --ptxas-options="-v" matrixmul_kernel.cu 
+   to see the resource usage of your kernel (although compilation will fail,
+   it will only do so after compiling the kernel and displaying the relevant
+   information.)
+
+
+Solution
+      
+   According Wikipedia, I found compute capability of GeForce GTX 280 is 1.3, number of 
+   resident thread per multiprocessor is 1024. Since it contains 30 streaming 
+   multiprocessors, we can obtain the munber of threads which can be simultaneously 
+   scheduled for execution is 1024*30 = 30720.
+
+
+   To check my kernel usage, I input the following instrument and get the output:
+
+   [luxx0201@ece-biel mp3-tiled-matrixmul]$ nvcc --ptxas-options="-v" matrixmul_kernel.cu
+   
+   ptxas info    : Compiling entry function '_Z15MatrixMulKernel6MatrixS_S_' for 'sm_10'
+   ptxas info    : Used 12 registers, 2120+16 bytes smem, 8 bytes cmem[1]
+   /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o: In function `_start':

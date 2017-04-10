@@ -1,0 +1,91 @@
+#ifndef _PRESCAN_CU_
+#define _PRESCAN_CU_
+
+// includes, kernels
+#include <assert.h>
+
+
+#define NUM_BANKS 16
+#define LOG_NUM_BANKS 4
+// MP5.2 - You can use any other block size you wish.
+#define BLOCK_SIZE 256
+
+// MP5.2 - Host Helper Functions (allocate your own data structure...)
+
+
+// MP5.2 - Device Functions
+void preallocBlockSums(unsigned num_elements);
+{
+   
+
+} 
+
+// MP5.2 - Kernel Functions
+__global__ void prescanArray_kernel(float *outArray, float *inArray, int numElements)
+{
+   __shared__ float scan_array[2*BLOCK_SIZE];
+   unsigned int t = threadIdx.x;
+   unsigned int start = 2*BLOCK_SIZE*blockIdx.x;
+   if (start + t < numElements)
+      scan_array[t] = inArray[start + t];
+   else
+      scan_array[t] = 0;
+   if (start + BLOCK_SIZE + t < numElements)
+      scan_array[BLOCK_SIZE + t] = inArray[start + BLOCK_SIZE + t];
+   else
+      scan_array[BLOCK_SIZE + t] = 0;
+   __syncthreads();
+
+   // Reduction
+   int stride_R = 1;
+   while (stride_R <= BLOCK_SIZE)
+   {
+      int index = (t + 1)*stride_R*2 - 1;
+      if (index < 2*BLOCK_SIZE)
+         scan_array[index] += scan_array[index - stride_R];
+      stride_R = stride_R * 2;
+      __syncthreads();
+
+   // Post scan step
+   if (t == 0)
+      scan_array[2*blockDim.x - 1] = 0;
+   int stride_P = BLOCK_SIZE;
+   while (stride_P > 0)
+   {
+      int index = (t + 1)*stride_P*2 - 1;
+      if (index < 2*BLOCK_SIZE)
+      {
+       	 float temp = scan_array[index];
+         scan_array[index] += scan_array[index - stride_P];
+         scan_array[index - stride_P] = temp;
+      }
+      stride_P = stride_P / 2;
+      __syncthreads();
+   }
+
+   if (start + t < numElements)
+      outArray[start + t] = scan_array[t];
+   if (start + BLOCK_SIZE + t < numElements)
+      outArray[start + BLOCK_SIZE + t] = scan_array[BLOCK_SIZE + t];
+
+}
+
+
+// **===-------- MP5.2 - Modify the body of this function -----------===**
+// You may need to make multiple kernel calls, make your own kernel
+// function in this file, and then call them from here.
+void prescanArray(float *outArray, float *inArray, int numElements)
+{
+   // Setup the execution configuration
+   dim3 DimGrid((numElements-1)/BLOCK_SIZE, 1, 1);
+   dim3 DimBlock(BLOCK_SIZE, 1, 1);
+
+   // Launch the device kernel
+   prescanArray_kernel<<<DimGrid, DimBlock>>>(outArray, inArray, numElements);
+   cudaDeviceSynchronize(); 
+
+}
+// **===-----------------------------------------------------------===**
+
+
+#endif // _PRESCAN_CU_

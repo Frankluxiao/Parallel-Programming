@@ -1,0 +1,57 @@
+﻿   1. Near the top of "scan_largearray.cu", set #define DEFAULT_NUM_ELEMENTS
+      to 16777216. Set #define MAX_RAND to 3.  
+   
+   2. Record the performance results when run without arguments, including the
+      host CPU and GPU processing times and the speedup.  
+ 
+      **===-------------------------------------------------===**
+      Processing 16777216 elements...
+      Host CPU Processing time: 125.228996 (ms)
+      G80 CUDA Processing time: 6.179000 (ms)
+      Speedup: 20.266870X
+      Test PASSED
+
+   3. Describe how you handled arrays not a power of two in size, and how you
+      minimized shared memory bank conflicts. Also describe any other
+      performance-enhancing optimizations you added.  
+
+      For the array which is not a power of two in size, it will occur some 
+      misloading issues and boundary issues. To solve it, I set some constrains 
+      and boundary conditions,such as:
+
+      if (start + t < numElements)
+         scan_array[t + bankOffsetA] = inArray[start + t];
+      else
+         scan_array[t + bankOffsetA] = 0;  
+      
+      Bank conflicts slow shared memory down, they occur when multiple values are 
+      requested from a shared memory bank are requested from a single warp. To            
+      minimized shared memory bank conflicts, I add a small parameter which is 
+      calculated by index divided by shared memory bank in each thread index. In 
+      my code, I use macro CONFLICT_FREE_OFFSET to implement it and get the 
+      following answer.
+
+      **===-------------------------------------------------===**
+      Processing 16777216 elements...
+      Host CPU Processing time: 125.419998 (ms)
+      G80 CUDA Processing time: 4.702000 (ms)
+      Speedup: 26.673754X
+      Test PASSED
+
+      According the previous results, we find the calculation become faster than 
+      the original code.       
+
+   4. How do the measured FLOPS rate for the CPU and GPU kernels compare 
+      with each other, and with the theoretical performance limits of each
+      architecture? For your GPU implementation, discuss what bottlenecks 
+      your code is likely bound by, limiting higher performance. 
+
+      Here, I will use the optimized code to measure FLOPS rate.
+      For CPU, the FLOPS rate is (2*16777216)/(125.5/1000) = 267.366Mhz.
+      Clock rate is bottleneck.
+
+      For GPU, it has 2*(n-1) additions and (n-1) swaps in PRESCAN part, and (n*-1)
+      additions in SUMBACK part. Here n* means next step n.
+      Hence, we have FLOPS rate is ((16777216-1)*(2+1)+(32768-1)*(2+1+1)+(64-1)*
+      (2+1+1))/(4.702/1000) = 10.732Ghz.
+      Memory size and bandwidth are the bottlenecks.

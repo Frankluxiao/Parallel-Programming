@@ -1,0 +1,22 @@
+﻿1. How many times does your thread block synchronize to reduce its portion of an array to a single value?
+
+For 512 elements, we have 
+
+       Step 1  256 synchronize
+       Step 2  128 synchronize  
+       Step 3  64   synchronize  
+       Step 4  32   synchronize  
+       Step 5  16   synchronize  
+       Step 6  8     synchronize  
+       Step 7  4     synchronize  
+       Step 8  2     synchronize  
+       Step 9  1
+
+Thus, the total time of synchronization is 8.
+
+2. What is the minimum, maximum, and average number of "real" operations that a thread will perform? "Real" operations are those that directly contribute to the final reduction value.
+
+
+The minimum number of “real” operations is 1;
+The maximum number of “real” operations is 9;
+The average number of “real” operations is (256+128+64+32+16+8+4+2+1)/256=1.9961.

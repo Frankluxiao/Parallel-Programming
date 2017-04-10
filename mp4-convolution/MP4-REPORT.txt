@@ -1,0 +1,54 @@
+   1. What is the measured floating-point computation rate for the CPU and GPU
+      kernels in this application? How do they each scale with the size of the
+      input?
+
+   Solution:
+      I obtained the following test result:
+    
+      [luxx0201@ECE-Zurich release]$ ./mp4-convolution size1.txt kernel.in image1.in
+      GPU process time is: 0.050496 ms
+      GPU overall time is: 0.823104 ms
+      CPU process time is: 0.132832 ms
+      Test PASSED
+      
+      [luxx0201@ECE-Zurich release]$ ./mp4-convolution size2.txt kernel.in image2.in
+      GPU process time is: 0.320416 ms
+      GPU overall time is: 7.609984 ms
+      CPU process time is: 141.045242 ms
+      Test PASSED
+
+      Here, GPU process time means GPU kernel time, CPU process time means CPU 
+      computational time, GPU overall time = GPU process time + GPU overhead time.
+       
+      For test image1 32*32, measured floating-point computation rate for CPU =
+      25*2*32*32/(0.1328/1000) = 385542168
+      measured floating-point computation rate for GPU kernel = 
+      25*2*32*32/(0.0505/1000) = 1013861386
+      measured floating-point computation rate for GPU overall = 
+      25*2*32*32/(0.8231/1000) = 62203863 
+
+      For test image2 1024*1024, measured floating-point computation rate for CPU
+      = 25*2*1024*1024/(141.045/1000) = 371835460
+      measured floating-point computation rate for GPU kernel =
+      25*2*1024*1024/(0.3204/1000) = 163635455000
+      measured floating-point computation rate for GPU overall = 
+      25*2*1024*1024/(7.6100/1000) = 6889461235
+
+      Thus, we can say CPU computation is better than GPU computation when input
+      image size is reletively small. However, when input image size is large enough,
+      GPU computation is better. This is to say, the computation time of CPU
+      increases drasticly along with the increasement of input size compare with
+      GPU kernel and GPU overall. 
+
+   2. How much time is spent as an overhead cost for using the GPU for 
+      computation? Consider all code executed within your host function
+      ConvolutionOnDevice, with the exception of the kernel itself, as overhead.
+      How does the overhead scale with the size of the input?
+   
+   Solution:
+      According to above-shown result, for test image1 32*32, overhead cost time 
+      = GPU overall time - GPU process time = 0.8231 - 0.0505 = 0.7726 ms
+      For test image2 1024*1024, overhead cost time = GPU overall time - GPU process
+      time = 7.6100 - 0.3204 = 7.2896 ms
+
+      Overhead time increases along with the increasement of input image size.  
